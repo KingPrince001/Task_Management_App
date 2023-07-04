@@ -5,6 +5,14 @@
   "main": "server.js",
   "author": "John Chege",
   "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.16.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
