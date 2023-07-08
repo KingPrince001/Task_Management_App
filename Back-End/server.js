@@ -2,7 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser'
-
+import config from './src/database/config.js'
+import authRoutes from './src/routes/authRoutes.js';
 
 
 
@@ -18,7 +19,8 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
+//Routes
+authRoutes(app);
 
 
 
