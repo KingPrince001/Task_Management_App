@@ -25,3 +25,12 @@
     justify-content: center;
     
   }
+
+  .input-container {
+    display: flex;
+    margin-top: 10px;
+    gap: 20px;
+    justify-content: space-between;
+  }
+
+  

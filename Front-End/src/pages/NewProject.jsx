@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -6,10 +6,12 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import Autocomplete from '@mui/material/Autocomplete';
-import Chip from '@mui/material/Chip'; // Add Chip import
+import Chip from '@mui/material/Chip';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './pages-css/newproject.css';
+import { getAllUsers, createProject, assignMembersToProject } from '../redux/apiCall';
+import { useDispatch, useSelector } from 'react-redux';
 
 const schema = yup.object().shape({
   projectName: yup.string().required('Project name is required'),
@@ -18,12 +20,18 @@ const schema = yup.object().shape({
   endDate: yup.string().required('End date is required'),
   urgency: yup.string().required('Urgency is required'),
   category: yup.string().required('Category is required'),
+  status: yup.string().required('Status is required'),
 });
 
 const projectCategories = [
-  { label: 'Category 1' },
-  { label: 'Category 2' },
-  { label: 'Category 3' },
+  { label: 'Technology' },
+  { label: 'Marketing' },
+  { label: 'Sales' },
+  { label: 'Construction' },
+  { label: 'Event Management' },
+  { label: 'Finance' },
+  { label: 'Human Resources' },
+  { label: 'Research and Development' },
 ];
 
 const urgencyOptions = [
@@ -32,31 +40,84 @@ const urgencyOptions = [
   { label: 'High' },
 ];
 
+const statusOptions = [
+  { label: 'Pending Start' },
+  { label: 'In Progress', disabled: true },
+  { label: 'Completed', disabled: true },
+];
+
 function NewProject() {
-  const { handleSubmit, register, formState: { errors } } = useForm({
+  const dispatch = useDispatch();
+  const userList = useSelector((state) => state.userList.userList);
+  const user = useSelector((state) => state.user.user);
+  const project = useSelector((state) => state.project.project)
+
+  useEffect(() => {
+    getAllUsers(dispatch, user);
+  }, []);
+
+  const { handleSubmit, register, formState: { errors }, setValue } = useForm({
     resolver: yupResolver(schema),
   });
 
   const [assignedMembers, setAssignedMembers] = useState([]);
 
-  const onSubmit = (data) => {
-    // Project creation API call
-    // Include the assigned members data along with other form data
-    const projectData = {
-      ...data,
-      assignedMembers: assignedMembers.map((member) => member.label),
-    };
-    console.log('Project Data:', projectData);
+  // Use useState to create and update the category variable
+  const [category, setCategory] = useState(null);
+
+  // Use useState to create and update the urgency variable
+  const [urgency, setUrgency] = useState(null);
+
+  // Use useState to create and update the status variable
+  const [status, setStatus] = useState(null);
+
+  const handleMemberSelection = (event, selectedMembers) => {
+    const validMembers = selectedMembers.filter((member) =>
+      userList.some((user) => user.username === member.username)
+    );
+    setAssignedMembers(validMembers.map((member) => member.user_id));
+  };
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    const isValidMembers = assignedMembers.every((memberId) =>
+      userList.some((user) => user.user_id === memberId)
+    );
+
+    if (!isValidMembers) {
+      toast.error('Invalid member(s) selected');
+      return;
+    }
+    const assignedMembersArray = assignedMembers;
+    try {
+      const startDate = new Date(data.startDate).toISOString();
+      const endDate = new Date(data.endDate).toISOString();
+
+      const projectData = {
+        projectName: data.projectName,
+        description: data.description,
+        startDate: startDate,
+        endDate: endDate,
+        urgency: data.urgency,
+        category: data.category,
+        status: data.status,
+      };
+      console.log(`assignedmembersarray newproject: ${assignedMembersArray}`)
+      const createdProject = await createProject(projectData, user, dispatch);
+      const projectId = createdProject.projectId;
+      await assignMembersToProject(projectId, assignedMembersArray, user, dispatch);
+     
+
+      toast.success('Project created successfully');
+    } catch (error) {
+      toast.error('Failed to create project');
+      console.log(error);
+    }
   };
 
   const resetForm = () => {
-    // Reset the form
     const form = document.getElementById('newProjectForm');
     form.reset();
-  };
-
-  const handleMemberSelection = (event, selectedMembers) => {
-    setAssignedMembers(selectedMembers);
   };
 
   return (
@@ -83,81 +144,115 @@ function NewProject() {
             helperText={errors.description?.message}
           />
           <br />
-          <TextField
-  style={{ margin: '10px 0' }}
-  label="Start Date"
-  type="date"
-  InputLabelProps={{
-    shrink: true,
-  }}
-  {...register('startDate')}
-  error={!!errors.startDate}
-  helperText={errors.startDate?.message}
-/>
-
-<TextField
-  style={{ margin: '10px 10px 10px 20px' }}
-  label="End Date"
-  type="date"
-  InputLabelProps={{
-    shrink: true,
-  }}
-  {...register('endDate')}
-  error={!!errors.endDate}
-  helperText={errors.endDate?.message}
-/>
+          <div className="date-inputs">
+            <TextField
+              style={{ margin: '10px 0' }}
+              label="Start Date"
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              {...register('startDate')}
+              error={!!errors.startDate}
+              helperText={errors.startDate?.message}
+            />
+            <TextField
+              style={{ margin: '10px 0' }}
+              label="End Date"
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              {...register('endDate')}
+              error={!!errors.endDate}
+              helperText={errors.endDate?.message}
+            />
+          </div>
+          
+          <br />
 
           <br />
+          <div className="input-container">
           <Autocomplete
+            value={urgency}
+            onChange={(event, newValue) => {
+              setUrgency(newValue);
+            }}
+            isOptionEqualToValue={(option, value) => option.label === value.label}
             options={urgencyOptions}
             getOptionLabel={(option) => option.label}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Urgency"
+                fullWidth
+                {...register('urgency')}
+                error={!!errors.urgency}
+                helperText={errors.urgency?.message}
               />
             )}
-            {...register('urgency')}
-            error={!!errors.urgency}
-            helperText={errors.urgency?.message}
           />
           <br />
           <Autocomplete
-            options={projectCategories}
+            value={status}
+            onChange={(event, newValue) => {
+              setStatus(newValue);
+            }}
+            isOptionEqualToValue={(option, value) => option.label === value.label}
+            options={statusOptions}
             getOptionLabel={(option) => option.label}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Category"
+                label="Status"
+                fullWidth
+                {...register('status')}
+                error={!!errors.status}
+                helperText={errors.status?.message}
               />
             )}
-            {...register('category')}
-            error={!!errors.category}
-            helperText={errors.category?.message}
           />
+          </div>
           <br />
           <Autocomplete
-            multiple
-            options={[]}
-            getOptionLabel={(option) => option.label}
-            onChange={handleMemberSelection}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip variant="outlined" label={option.label} {...getTagProps({ index })} />
-              ))
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Assign to Members"
-              />
-            )}
-          />
+  value={category}
+  onChange={(event, newValue) => {
+    setCategory(newValue);
+  }}
+  isOptionEqualToValue={(option, value) => option.label === value.label}
+  options={projectCategories}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Category"
+      fullWidth
+      {...register('category')}
+      error={!!errors.category}
+      helperText={errors.category?.message}
+    />
+  )}
+/>
+          <br />
+          <Autocomplete
+  multiple
+  options={userList}
+  getOptionLabel={(option) => option.username}
+  onChange={handleMemberSelection}
+  isOptionEqualToValue={(option, value) => option.user_id === value.user_id}
+  renderTags={(value, getTagProps) =>
+    value.map((option, index) => (
+      <Chip variant="outlined" label={option.username} {...getTagProps({ index })} />
+    ))
+  }
+  renderInput={(params) => <TextField {...params} label="Assign to Members" />}
+/>
+
           <br />
           <div className="button-container">
-          <Button type="submit" variant="contained" startIcon={<AddIcon />}>
-            Create Project
-          </Button>
+            <Button type="submit" variant="contained" startIcon={<AddIcon />}>
+              Create Project
+            </Button>
           </div>
         </form>
       </div>

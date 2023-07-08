@@ -16,12 +16,13 @@ const userSlice = createSlice({
             state.error = false;
         },
         loginFailure:(state)=>{
-state.isFetching = false;
-state.error = true
+        state.isFetching = false;
+        state.error = true;
         },
         logOut: (state) => {
             state.user = null;
     },
+  
     }
 })
 export const {loginStart,loginSuccess,loginFailure,logOut} = userSlice.actions;

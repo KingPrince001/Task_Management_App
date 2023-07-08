@@ -10,7 +10,7 @@ export const loginRequired = (req, res, next) => {
     if (req.user) {
         next();
     } else {
-        return res.status(401).json({ message: 'Register  Login first' });
+        return res.status(401).json({ message: 'Register or Login first' });
     }
 }
 
