@@ -12,6 +12,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import './pages-css/newproject.css';
 import { getAllUsers, createProject, assignMembersToProject } from '../redux/apiCall';
 import { useDispatch, useSelector } from 'react-redux';
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 const schema = yup.object().shape({
   projectName: yup.string().required('Project name is required'),
@@ -51,9 +53,18 @@ function NewProject() {
   const userList = useSelector((state) => state.userList.userList);
   const user = useSelector((state) => state.user.user);
   const project = useSelector((state) => state.project.project)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getAllUsers(dispatch, user);
+    setIsLoading(true);
+    getAllUsers(dispatch, user)
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+      });
   }, []);
 
   const { handleSubmit, register, formState: { errors }, setValue } = useForm({
@@ -121,143 +132,149 @@ function NewProject() {
   };
 
   return (
-    <>
-      <div className="container">
-        <h1>Create New Project</h1>
-        <form id="newProjectForm" onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            label="Project Name"
-            fullWidth
-            {...register('projectName')}
-            error={!!errors.projectName}
-            helperText={errors.projectName?.message}
-          />
-          <br />
-          <TextField
-            style={{ margin: '10px 0' }}
-            label="Description"
-            fullWidth
-            multiline
-            rows={4}
-            {...register('description')}
-            error={!!errors.description}
-            helperText={errors.description?.message}
-          />
-          <br />
-          <div className="date-inputs">
-            <TextField
-              style={{ margin: '10px 0' }}
-              label="Start Date"
-              type="date"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              {...register('startDate')}
-              error={!!errors.startDate}
-              helperText={errors.startDate?.message}
-            />
-            <TextField
-              style={{ margin: '10px 0' }}
-              label="End Date"
-              type="date"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              {...register('endDate')}
-              error={!!errors.endDate}
-              helperText={errors.endDate?.message}
-            />
-          </div>
-          
-          <br />
-
-          <br />
-          <div className="input-container">
-          <Autocomplete
-            value={urgency}
-            onChange={(event, newValue) => {
-              setUrgency(newValue);
-            }}
-            isOptionEqualToValue={(option, value) => option.label === value.label}
-            options={urgencyOptions}
-            getOptionLabel={(option) => option.label}
-            renderInput={(params) => (
+    <div className="container">
+      
+      {isLoading ? (
+        <div className="loader-container">
+          <CircularProgress />
+        </div>
+        
+      ) : (
+        <>
+          <div className="container">
+            <h1>Create New Project</h1>
+            <form id="newProjectForm" onSubmit={handleSubmit(onSubmit)}>
               <TextField
-                {...params}
-                label="Urgency"
+                label="Project Name"
                 fullWidth
-                {...register('urgency')}
-                error={!!errors.urgency}
-                helperText={errors.urgency?.message}
+                {...register('projectName')}
+                error={!!errors.projectName}
+                helperText={errors.projectName?.message}
               />
-            )}
-          />
-          <br />
-          <Autocomplete
-            value={status}
-            onChange={(event, newValue) => {
-              setStatus(newValue);
-            }}
-            isOptionEqualToValue={(option, value) => option.label === value.label}
-            options={statusOptions}
-            getOptionLabel={(option) => option.label}
-            renderInput={(params) => (
+              <br />
               <TextField
-                {...params}
-                label="Status"
+                style={{ margin: '10px 0' }}
+                label="Task"
                 fullWidth
-                {...register('status')}
-                error={!!errors.status}
-                helperText={errors.status?.message}
+                multiline
+                rows={4}
+                {...register('description')}
+                error={!!errors.description}
+                helperText={errors.description?.message}
               />
-            )}
-          />
-          </div>
-          <br />
-          <Autocomplete
-  value={category}
-  onChange={(event, newValue) => {
-    setCategory(newValue);
-  }}
-  isOptionEqualToValue={(option, value) => option.label === value.label}
-  options={projectCategories}
-  getOptionLabel={(option) => option.label}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      label="Category"
-      fullWidth
-      {...register('category')}
-      error={!!errors.category}
-      helperText={errors.category?.message}
-    />
-  )}
-/>
-          <br />
-          <Autocomplete
-  multiple
-  options={userList}
-  getOptionLabel={(option) => option.username}
-  onChange={handleMemberSelection}
-  isOptionEqualToValue={(option, value) => option.user_id === value.user_id}
-  renderTags={(value, getTagProps) =>
-    value.map((option, index) => (
-      <Chip variant="outlined" label={option.username} {...getTagProps({ index })} />
-    ))
-  }
-  renderInput={(params) => <TextField {...params} label="Assign to Members" />}
-/>
-
-          <br />
-          <div className="button-container">
-            <Button type="submit" variant="contained" startIcon={<AddIcon />}>
-              Create Project
-            </Button>
-          </div>
-        </form>
-      </div>
-      <ToastContainer />
-    </>
+              <br />
+              <div className="date-inputs">
+                <TextField
+                  style={{ margin: '10px 0' }}
+                  label="Start Date"
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  {...register('startDate')}
+                  error={!!errors.startDate}
+                  helperText={errors.startDate?.message}
+                />
+                <TextField
+                  style={{ margin: '10px 0' }}
+                  label="End Date"
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  {...register('endDate')}
+                  error={!!errors.endDate}
+                  helperText={errors.endDate?.message}
+                />
+              </div>
+              <br />
+              <div className="input-container">
+                <Autocomplete
+                  value={urgency}
+                  onChange={(event, newValue) => {
+                    setUrgency(newValue);
+                  }}
+                  isOptionEqualToValue={(option, value) => option.label === value.label}
+                  options={urgencyOptions}
+                  getOptionLabel={(option) => option.label}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Urgency"
+                      fullWidth
+                      {...register('urgency')}
+                      error={!!errors.urgency}
+                      helperText={errors.urgency?.message}
+                    />
+                  )}
+                />
+                <br />
+                <Autocomplete
+                  value={status}
+                  onChange={(event, newValue) => {
+                    setStatus(newValue);
+                  }}
+                  isOptionEqualToValue={(option, value) => option.label === value.label}
+                  options={statusOptions}
+                  getOptionLabel={(option) => option.label}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Status"
+                      fullWidth
+                      {...register('status')}
+                      error={!!errors.status}
+                      helperText={errors.status?.message}
+                    />
+                  )}
+                />
+              </div>
+              <br />
+              <Autocomplete
+                value={category}
+                onChange={(event, newValue) => {
+                  setCategory(newValue);
+                }}
+                isOptionEqualToValue={(option, value) => option.label === value.label}
+                options={projectCategories}
+                getOptionLabel={(option) => option.label}
+               renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Category"
+                  fullWidth
+                  {...register('category')}
+                  error={!!errors.category}
+                  helperText={errors.category?.message}
+                />
+              )}
+            />
+            <br />
+            <Autocomplete
+              multiple
+              options={userList}
+              getOptionLabel={(option) => option.username}
+              onChange={handleMemberSelection}
+              isOptionEqualToValue={(option, value) => option.user_id === value.user_id}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip variant="outlined" label={option.username} {...getTagProps({ index })} />
+                ))
+              }
+              renderInput={(params) => <TextField {...params} label="Assign to Members" />}
+            />
+            <br />
+            <div className="button-container">
+              <Button type="submit" variant="contained" startIcon={<AddIcon />}>
+                Create Project
+              </Button>
+            </div>
+          </form>
+        </div>
+        <ToastContainer />
+      </>
+      )}
+    </div>
   );
 }
 

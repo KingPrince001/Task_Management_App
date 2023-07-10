@@ -19,6 +19,8 @@ import TaskRemindersIcon from '@mui/icons-material/AccessTime';
 import TaskAnalyticsIcon from '@mui/icons-material/Assessment';
 import Logo from '../assets/puppycup.jpg';
 import NewProject from './NewProject';
+import ExistingProjects from './ExistingProjects';
+import Dashboard from './Dashboard';
 import Account from './Account';
 import './homepage.css';
 import { useNavigate } from "react-router-dom";
@@ -76,7 +78,7 @@ function HomePage() {
 
           <img src={Logo} style={{ height: '14vh', width: '7vw', marginLeft: '55px', marginTop: '10px', borderRadius: '50%' }} alt="logo-TaskPro" />
 
-          <MenuItem icon={<DashboardIcon />} title="Dashboard">Dashboard</MenuItem>
+          <MenuItem icon={<DashboardIcon />} title="Dashboard" component={<Link to='dashboard' />}>Dashboard</MenuItem>
 
           <SubMenu icon={<FolderOpenIcon />} title="Projects" label="Projects" onClick={() => handleSubMenuClick("Projects")}>
             <MenuItem className='new-project' icon={<AddIcon />} component={<Link to='newProject' />}>New project</MenuItem>
@@ -107,6 +109,8 @@ function HomePage() {
       <section className="homepage-routes">
         <Routes>
       <Route path="/newProject" element={<NewProject />} />
+      <Route path='/existingProjects' element={<ExistingProjects />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path='/account' element={<Account />} />
       </Routes>
       </section>

@@ -70,3 +70,160 @@ export const assignMembersToProject = async (req, res) => {
   }
 };
 
+
+export const getProjectWithMembers = async (req, res) => {
+  try {
+    let pool = await sql.connect(config.sql);
+
+    // Execute the SELECT statement
+    const result = await pool
+      .request()
+      .query(`SELECT
+                 p.projectId,
+                 p.projectName,
+                 p.description,
+                 p.startDate,
+                 p.endDate,
+                 p.urgency,
+                 p.category,
+                 p.status,
+                 u.user_id,
+                 u.username,
+                 u.email
+               FROM
+                 projects p
+               JOIN
+                 AssignedMembers am ON p.projectId = am.projectId
+               JOIN
+                 users u ON am.user_id = u.user_id`);
+
+
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while retrieving the projects plus members assigned' });
+  } finally {
+    sql.close();
+  }
+};
+
+
+//filter by status
+export const filterProjectsByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    let pool = await sql.connect(config.sql);
+
+    // Execute the SELECT statement with the WHERE clause
+    const result = await pool
+      .request()
+      .query(`SELECT
+                 p.projectId,
+                 p.projectName,
+                 p.description,
+                 p.startDate,
+                 p.endDate,
+                 p.urgency,
+                 p.category,
+                 p.status,
+                 u.user_id,
+                 u.username,
+                 u.email
+               FROM
+                 projects p
+               JOIN
+                 AssignedMembers am ON p.projectId = am.projectId
+               JOIN
+                 users u ON am.user_id = u.user_id
+               WHERE
+                 p.status = '${status}'`);
+
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while filtering projects by status' });
+  } finally {
+    sql.close();
+  }
+};
+
+//filter by urgency
+export const filterProjectsByUrgency = async (req, res) => {
+  try {
+    const { urgency } = req.params;
+
+    let pool = await sql.connect(config.sql);
+
+    // Execute the SELECT statement with the WHERE clause
+    const result = await pool
+      .request()
+      .query(`SELECT
+                 p.projectId,
+                 p.projectName,
+                 p.description,
+                 p.startDate,
+                 p.endDate,
+                 p.urgency,
+                 p.category,
+                 p.status,
+                 u.user_id,
+                 u.username,
+                 u.email
+               FROM
+                 projects p
+               JOIN
+                 AssignedMembers am ON p.projectId = am.projectId
+               JOIN
+                 users u ON am.user_id = u.user_id
+               WHERE
+                 p.urgency = '${urgency}'`);
+
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while filtering projects by urgency' });
+  } finally {
+    sql.close();
+  }
+};
+
+//filter by category
+export const filterProjectsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    let pool = await sql.connect(config.sql);
+
+    // Execute the SELECT statement with the WHERE clause
+    const result = await pool
+      .request()
+      .query(`SELECT
+                 p.projectId,
+                 p.projectName,
+                 p.description,
+                 p.startDate,
+                 p.endDate,
+                 p.urgency,
+                 p.category,
+                 p.status,
+                 u.user_id,
+                 u.username,
+                 u.email
+               FROM
+                 projects p
+               JOIN
+                 AssignedMembers am ON p.projectId = am.projectId
+               JOIN
+                 users u ON am.user_id = u.user_id
+               WHERE
+                 p.category = '${category}'`);
+
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while filtering projects by category' });
+  } finally {
+    sql.close();
+  }
+};

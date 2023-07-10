@@ -4,11 +4,11 @@
         "colId": "history",
         "containerId": "",
         "name": "http://localhost:8081/users",
-        "url": "http://localhost:8081/users",
+        "url": "http://localhost:8081/filterByCategory/finance",
         "method": "GET",
         "sortNum": 0,
         "created": "2023-07-08T06:56:08.802Z",
-        "modified": "2023-07-08T06:56:08.802Z",
+        "modified": "2023-07-10T15:28:48.367Z",
         "headers": [],
         "params": [],
         "tests": []

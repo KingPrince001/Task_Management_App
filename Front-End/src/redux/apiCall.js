@@ -2,6 +2,10 @@ import {loginStart,loginSuccess,loginFailure,logOut} from './userSlice';
 import { userListStart, userListSuccess, userListFailure } from './userListSlice';
 import { projectStart, projectSuccess, projectFailure } from './projectSlice';
 import { assignMembersStart, assignMembersSuccess, assignMembersFailure } from './assignMembersSlice';
+import { projectWithMembersStart, projectWithMembersSuccess, projectWithMembersFailure } from './projectWithMembersSlice';
+import { statusStart, statusSuccess, statusFailure } from './filterByStatusSlice';
+import { urgencyStart, urgencySuccess, urgencyFailure } from './filterByUrgencySlice';
+import { categoryStart, categorySuccess, categoryFailure } from './filterByCategorySlice';
 import axios from 'axios';
 import { apiDomain } from '../utils/utils';
 import { toast } from 'react-toastify';
@@ -138,3 +142,73 @@ console.log(memberData);
 };
 
 
+//get project plus members assigned
+export const getProjectWithMembers = async (dispatch, user) => {
+  dispatch(projectWithMembersStart());
+
+  try {
+    const {data} = await axios.get(`${apiDomain}/getProjectWithMembers`,{
+      headers: {"authorization" : `${user.token}`}
+    });
+    console.log(`token: ${user.token}`)
+    console.log(data);
+    dispatch(projectWithMembersSuccess(data));
+  } catch (error) {
+    console.log(error)
+    dispatch(projectWithMembersFailure());
+  }
+}
+
+
+//filter projects by status
+export const filterProjectsByStatus = async (dispatch, user, status) => {
+  dispatch(statusStart());
+
+  try {
+    const {data} = await axios.get(`${apiDomain}/filterByStatus/${status}`,{
+      headers: {"authorization" : `${user.token}`}
+    });
+    console.log(`token: ${user.token}`)
+    console.log(data);
+    dispatch(statusSuccess(data));
+  } catch (error) {
+    console.log(error)
+    dispatch(statusFailure());
+  }
+}
+
+
+//filter projects by urgency
+export const filterProjectsByUrgency = async (dispatch, user, urgency) => {
+  dispatch(urgencyStart());
+
+  try {
+    const {data} = await axios.get(`${apiDomain}/filterByUrgency/${urgency}`,{
+      headers: {"authorization" : `${user.token}`}
+    });
+    console.log(`token: ${user.token}`)
+    console.log(data);
+    dispatch(urgencySuccess(data));
+  } catch (error) {
+    console.log(error)
+    dispatch(urgencyFailure());
+  }
+}
+
+
+//filter projects by category
+export const filterProjectsByCategory = async (dispatch, user, category) => {
+  dispatch(categoryStart());
+
+  try {
+    const {data} = await axios.get(`${apiDomain}/filterByCategory/${category}`,{
+      headers: {"authorization" : `${user.token}`}
+    });
+    console.log(`token: ${user.token}`)
+    console.log(data);
+    dispatch(categorySuccess(data));
+  } catch (error) {
+    console.log(error)
+    dispatch(categoryFailure());
+  }
+}

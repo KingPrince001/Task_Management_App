@@ -3,6 +3,11 @@ import userSlice from './userSlice';
 import userListSlice from "./userListSlice";
 import projectSlice from "./projectSlice";
 import assignMembersSlice from "./assignMembersSlice";
+import projectWithMembersSlice from "./projectWithMembersSlice";
+import filterByCategorySlice from "./filterByCategorySlice";
+import filterByStatusSlice from "./filterByStatusSlice";
+import filterByUrgencySlice from "./filterByUrgencySlice";
+
 
 import {
     persistStore,
@@ -22,7 +27,7 @@ const persistConfig = {
   };
 
 
-  const rootReducer = combineReducers({ user: userSlice, userList : userListSlice, project: projectSlice, assignMembers: assignMembersSlice });
+  const rootReducer = combineReducers({ user: userSlice, userList : userListSlice, project: projectSlice, assignMembers: assignMembersSlice, projectWithMembers: projectWithMembersSlice, status: filterByStatusSlice, urgency: filterByUrgencySlice, category: filterByCategorySlice});
 
 
   const persistedReducer =  persistReducer(persistConfig,rootReducer);
