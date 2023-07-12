@@ -105,7 +105,7 @@ const RegisterForm = () => {
           }}
         />
 
-        <Button type="submit" variant="contained" color="primary">
+        <Button type="submit" variant="contained" fullWidth color="primary">
           Create Account
         </Button>
       </form>

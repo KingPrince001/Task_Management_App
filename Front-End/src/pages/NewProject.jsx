@@ -96,7 +96,7 @@ function NewProject() {
     );
 
     if (!isValidMembers) {
-      toast.error('Invalid member(s) selected');
+      toast.error('Invalid member(s) entered');
       return;
     }
     const assignedMembersArray = assignedMembers;
@@ -126,10 +126,7 @@ function NewProject() {
     }
   };
 
-  const resetForm = () => {
-    const form = document.getElementById('newProjectForm');
-    form.reset();
-  };
+  
 
   return (
     <div className="container">
@@ -141,7 +138,7 @@ function NewProject() {
         
       ) : (
         <>
-          <div className="container">
+          <div className="container" >
             <h1>Create New Project</h1>
             <form id="newProjectForm" onSubmit={handleSubmit(onSubmit)}>
               <TextField
@@ -165,7 +162,7 @@ function NewProject() {
               <br />
               <div className="date-inputs">
                 <TextField
-                  style={{ margin: '10px 0' }}
+                 fullWidth
                   label="Start Date"
                   type="date"
                   InputLabelProps={{
@@ -176,7 +173,7 @@ function NewProject() {
                   helperText={errors.startDate?.message}
                 />
                 <TextField
-                  style={{ margin: '10px 0' }}
+                 fullWidth
                   label="End Date"
                   type="date"
                   InputLabelProps={{
@@ -194,6 +191,7 @@ function NewProject() {
                   onChange={(event, newValue) => {
                     setUrgency(newValue);
                   }}
+                  style={{width:'100%'}}
                   isOptionEqualToValue={(option, value) => option.label === value.label}
                   options={urgencyOptions}
                   getOptionLabel={(option) => option.label}
@@ -202,6 +200,7 @@ function NewProject() {
                       {...params}
                       label="Urgency"
                       fullWidth
+                      
                       {...register('urgency')}
                       error={!!errors.urgency}
                       helperText={errors.urgency?.message}
@@ -214,6 +213,7 @@ function NewProject() {
                   onChange={(event, newValue) => {
                     setStatus(newValue);
                   }}
+                  style={{width:'100%'}}
                   isOptionEqualToValue={(option, value) => option.label === value.label}
                   options={statusOptions}
                   getOptionLabel={(option) => option.label}

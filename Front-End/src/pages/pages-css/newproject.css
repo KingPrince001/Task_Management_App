@@ -1,6 +1,6 @@
 .container {
     margin: 10px 200px;
-    width: 40vw;
+    width: 50vw;
     /* padding: 20px; */
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -10,15 +10,17 @@
   }
   
   .container h1 {
-    margin-bottom: 10px;
+    /* margin-bottom: -4px; */
+    /* margin-top: ; */
   }
   
   .container form {
-    margin-top: 20px;
+    width: 35vw;
   }
   
   .container form button {
-    margin-top: 10px;
+    margin-top: -10px;
+    margin-bottom: 15px;
   }
   
   .button-container {
@@ -29,9 +31,15 @@
 
   .input-container {
     display: flex;
-    margin-top: 10px;
-    gap: 20px;
+    gap: 10px;
     justify-content: space-between;
+    margin-top: -15px;
   }
 
+  .date-inputs {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
   

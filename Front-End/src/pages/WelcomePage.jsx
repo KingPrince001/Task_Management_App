@@ -56,8 +56,8 @@ const WelcomePage = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={currentPage} alternativeLabel>
+    <Box sx={{ width: '80vw', margin:'20px auto', display:'flex', flexDirection:'column', alignItems:'center' }}>
+      <Stepper activeStep={currentPage} alternativeLabel style={{marginTop:'', width:'80vw'}}>
         {pages.map((page, index) => (
           <Step key={index}>
             <StepLabel></StepLabel>
@@ -72,7 +72,7 @@ const WelcomePage = () => {
         onPrevious={handlePrevious}
         onSkip={handleSkip}
       />
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: -20, marginLeft: 20, marginRight:20}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop:'-150px', width:'50vw'}}>
       <Button
   variant="outlined"
   color="primary"

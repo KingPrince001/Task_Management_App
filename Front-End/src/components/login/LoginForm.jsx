@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, CircularProgress } from '@mui/material';
 import { Email, Lock } from '@mui/icons-material';
 import * as yup from 'yup';
 import './login.css';
@@ -18,24 +19,27 @@ const schema = yup.object().shape({
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false); // Added loading state
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
 
   const onSubmit = async (data) => {
+    setIsLoading(true); // Set loading state to true
     console.log(data);
     const success = await loginUser(dispatch, data);
     console.log(success)
     if (success) {
       navigate('/homePage');
     }
+    setIsLoading(false); // Set loading state back to false
   };
 
   return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <Typography variant="h4" component="h1">
+    <div style={{marginTop:'-100px'}}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <Typography variant="h4" component="h1" style={{marginBottom:'20px'}}>
           Welcome back to TaskPro.
         </Typography>
         <Typography variant="subtitle1" component="p">
@@ -43,38 +47,42 @@ const LoginForm = () => {
         </Typography>
       </div>
 
-      <form className='login-form' onSubmit={handleSubmit(onSubmit)}>
-        <TextField
-          {...register('email')}
-          label="Email"
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          error={!!errors.email}
-          helperText={errors.email?.message}
-          InputProps={{
-            startAdornment: <Email />,
-          }}
-        />
+      {isLoading ? ( // Display CircularProgress while loading
+        <CircularProgress />
+      ) : (
+        <form className='login-form' onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            {...register('email')}
+            label="Email"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            InputProps={{
+              startAdornment: <Email />,
+            }}
+          />
 
-        <TextField
-          {...register('password')}
-          label="Password"
-          type="password"
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          error={!!errors.password}
-          helperText={errors.password?.message}
-          InputProps={{
-            startAdornment: <Lock />,
-          }}
-        />
+          <TextField
+            {...register('password')}
+            label="Password"
+            type="password"
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            InputProps={{
+              startAdornment: <Lock />,
+            }}
+          />
 
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Sign In
-        </Button>
-      </form>
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Sign In
+          </Button>
+        </form>
+      )}
 
       <ToastContainer position="top-center" />
     </div>
