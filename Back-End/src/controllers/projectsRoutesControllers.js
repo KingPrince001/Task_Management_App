@@ -31,6 +31,46 @@ export const createProject = async (req, res) => {
 };
 
 
+//update project
+
+export const updateProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { projectName, description, startDate, endDate, urgency, category, status } = req.body;
+
+    let pool = await sql.connect(config.sql);
+    const result = await pool
+      .request()
+      .input('projectName', sql.VarChar, projectName)
+      .input('description', sql.VarChar, description)
+      .input('startDate', sql.Date, startDate)
+      .input('endDate', sql.Date, endDate)
+      .input('urgency', sql.VarChar, urgency)
+      .input('category', sql.VarChar, category)
+      .input('status', sql.VarChar, status)
+      .query(`UPDATE projects
+              SET projectName = @projectName,
+                  description = @description,
+                  startDate = @startDate,
+                  endDate = @endDate,
+                  urgency = @urgency,
+                  category = @category,
+                  status = @status
+              WHERE projectId = ${projectId}`);
+
+      
+
+    res.status(200).json({ message: 'Project updated successfully'});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while updating the project' });
+  } finally {
+    sql.close();
+  }
+};
+
+
+
 //assigning members to a project
 
 export const assignMembersToProject = async (req, res) => {
@@ -71,6 +111,52 @@ export const assignMembersToProject = async (req, res) => {
 };
 
 
+//update members assigned to a project
+
+export const updateAssignedMembers = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { userIds } = req.body;
+
+    let pool = await sql.connect(config.sql);
+    const transaction = new sql.Transaction(pool);
+
+    try {
+      await transaction.begin();
+
+      // Delete existing assigned members for the specific project
+      const deleteRequest = new sql.Request(transaction);
+      deleteRequest.input('projectId', sql.Int, projectId);
+      await deleteRequest.query(`DELETE FROM AssignedMembers WHERE projectId = @projectId`);
+
+      // Insert updated assigned members for the specific project
+      for (const userId of userIds) {
+        const insertRequest = new sql.Request(transaction);
+        insertRequest.input('projectId', sql.Int, projectId);
+        insertRequest.input('user_id', sql.Int, userId);
+        await insertRequest.query(`INSERT INTO AssignedMembers (projectId, user_id)
+                                   VALUES (@projectId, @user_id)`);
+      }
+
+      await transaction.commit();
+
+      res.status(200).json({ message: 'Assigned members updated successfully' });
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    } finally {
+      transaction.release();
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while updating assigned members', error });
+  } finally {
+    sql.close();
+  }
+};
+
+
+//return project plus members assigned
 export const getProjectWithMembers = async (req, res) => {
   try {
     let pool = await sql.connect(config.sql);

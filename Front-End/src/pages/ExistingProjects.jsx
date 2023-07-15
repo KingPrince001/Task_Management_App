@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { updateProject, updateAssignedMembersToProject } from "../redux/apiCall";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -24,6 +25,15 @@ import {
 import { Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from "@mui/icons-material";
 import { getProjectWithMembers } from "../redux/apiCall";
 
+const schema = yup.object().shape({
+  projectName: yup.string().required("Project name is required"),
+  description: yup.string().required("Description is required"),
+  startDate: yup.string().required("Start date is required"),
+  endDate: yup.string().required("End date is required"),
+  urgency: yup.string().required("Urgency is required"),
+  category: yup.string().required("Category is required"),
+});
+
 const projectCategories = [
   { label: "Technology" },
   { label: "Marketing" },
@@ -47,6 +57,29 @@ const statusOptions = [
   { label: "Completed", disabled: true },
 ];
 
+const formatData = (data) => {
+  const formattedData = {};
+
+  data.forEach((item) => {
+    const projectId = item.projectId;
+    const member = {
+      user_id: item.user_id,
+      username: item.username,
+      email: item.email,
+    };
+
+    if (projectId in formattedData) {
+      formattedData[projectId].members.push(member);
+    } else {
+      formattedData[projectId] = { project: item, members: [member] };
+    }
+  });
+
+  const formattedList = Object.values(formattedData);
+
+  return formattedList;
+};
+
 function ExistingProjects() {
   const dispatch = useDispatch();
   const projectWithMembers = useSelector(
@@ -56,46 +89,44 @@ function ExistingProjects() {
   const userList = useSelector((state) => state.userList.userList);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [projectsWithMembers, setProjectsWithMembers] = useState([]);
+
+
 
   useEffect(() => {
     getProjectWithMembers(dispatch, user)
-      .then(() => {
-        setIsLoading(false);
+      .then((projectWithMembers) => {
+        if (Array.isArray(projectWithMembers)) {
+          console.log(projectWithMembers)
+          const formattedData = formatData(projectWithMembers);
+          setProjectsWithMembers(formattedData);
+          setIsLoading(false);
+        } else {
+          // Handle the case when data is not an array
+          console.log("Invalid data format");
+          console.log(projectWithMembers)
+          setIsLoading(false);
+        }
       })
       .catch((error) => {
         console.log(error);
         setIsLoading(false);
       });
   }, [dispatch, user]);
+  
 
-  const formatData = (data) => {
-    const formattedData = {};
+  const formattedData = formatData(projectWithMembers);
 
-    data.forEach((item) => {
-      const projectId = item.projectId;
-      const member = {
-        user_id: item.user_id,
-        username: item.username,
-        email: item.email,
-      };
-
-      if (projectId in formattedData) {
-        formattedData[projectId].members.push(member);
-      } else {
-        formattedData[projectId] = { project: item, members: [member] };
-      }
-    });
-
-    const formattedList = Object.values(formattedData);
-
-    return formattedList;
-  };
+ 
 
   const [assignedMembers, setAssignedMembers] = useState([]);
-
   const [category, setCategory] = useState(null);
   const [urgency, setUrgency] = useState(null);
   const [status, setStatus] = useState(null);
+
+  const { handleSubmit, register, formState: { errors }, setValue } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   const handleMemberSelection = (event, selectedMembers) => {
     const validMembers = selectedMembers.filter((member) =>
@@ -109,7 +140,6 @@ function ExistingProjects() {
     return date.toLocaleDateString("en-US");
   };
 
-  const formattedData = formatData(projectWithMembers);
   const [expandedProjectId, setExpandedProjectId] = useState(null);
   const [open, setOpen] = useState(false);
   const [editProject, setEditProject] = useState({
@@ -135,8 +165,9 @@ function ExistingProjects() {
     const formattedStartDate = formatDate(project.startDate);
     const formattedEndDate = formatDate(project.endDate);
 
-    setEditProject({
-      projectId: project.projectId,
+    setEditProject((prev) => ({
+      ...prev,
+      projectId: project.projectId, // Set the projectId value
       projectName: project.projectName,
       description: project.description,
       startDate: formattedStartDate,
@@ -144,7 +175,7 @@ function ExistingProjects() {
       status: project.status,
       urgency: project.urgency,
       category: project.category,
-    });
+    }));
 
     // Update form values using setValue
     setValue("projectName", project.projectName);
@@ -162,7 +193,7 @@ function ExistingProjects() {
     setOpen(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const isValidMembers = assignedMembers.every((memberId) =>
       userList.some((user) => user.user_id === memberId)
     );
@@ -172,25 +203,43 @@ function ExistingProjects() {
       return;
     }
 
-    const assignedMembersArray = assignedMembers;
-    setOpen(false);
+    try {
+      // Update the project
+      const updatedProjectData = {
+        ...editProject, // Use the updated project data from the state
+      };
+      const projectId = editProject.projectId;
+      await updateProject(updatedProjectData, projectId, user, dispatch);
+  
+      // Update the assigned members
+      await updateAssignedMembersToProject(projectId, assignedMembers, user, dispatch);
+  
+      toast.success("Project updated successfully");
+      setOpen(false); // Close the modal or perform any other necessary actions
+  
+      // Update the projectsWithMembers state with the updated project
+      const updatedProjectsWithMembers = projectsWithMembers.map((project) => {
+        if (project.project.projectId === projectId) {
+          return {
+            ...project,
+            project: updatedProjectData,
+          };
+        } else {
+          return project;
+        }
+      });
+      setProjectsWithMembers(updatedProjectsWithMembers);
+      
+      console.log(updatedProjectData)
+      console.log(updatedProjectsWithMembers);
+    } catch (error) {
+      toast.error("Failed to update project");
+      console.log(error);
+    }
   };
 
-  const schema = yup.object().shape({
-    projectName: yup.string().required("Project name is required"),
-    description: yup.string().required("Description is required"),
-    startDate: yup.string().required("Start date is required"),
-    endDate: yup.string().required("End date is required"),
-    urgency: yup.string().required("Urgency is required"),
-    category: yup.string().required("Category is required"),
-    status: yup.string().required("Status is required"),
-  });
 
-  const { handleSubmit, register, formState: { errors }, setValue } = useForm({
-    resolver: yupResolver(schema),
-  });
-
-  return (
+  return (<>
     <div>
       {isLoading ? (
         <div style={{display:'flex',height:'100vh', width:'80vw', alignItems:'center', justifyContent:'center'}} > <CircularProgress /> </div>
@@ -277,71 +326,68 @@ function ExistingProjects() {
           <form onSubmit={handleSubmit(handleSave)}>
             {/* Project Name */}
             <TextField
-              label="Project Name"
-              value={editProject.projectName}
-              onChange={(e) =>
-                setEditProject((prev) => ({
-                  ...prev,
-                  projectName: e.target.value,
-                }))
-              }
-              fullWidth
-              margin="normal"
-              {...register("projectName")}
-              error={!!errors.projectName}
-              helperText={errors.projectName?.message}
-            />
+  label="Project Name"
+  value={editProject.projectName}
+  onChange={(e) =>
+    setEditProject((prev) => ({
+      ...prev,
+      projectName: e.target.value,
+    }))
+  }
+  fullWidth
+  margin="normal"
+  defaultValue={editProject.projectName} 
+  error={!!errors.projectName}
+  helperText={errors.projectName?.message}
+/>
 
-            {/* Task */}
-            <TextField
-              label="Task"
-              value={editProject.description}
-              onChange={(e) =>
-                setEditProject((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
-              fullWidth
-              margin="normal"
-              {...register("description")}
-              error={!!errors.description}
-              helperText={errors.description?.message}
-            />
+<TextField
+  label="Task"
+  value={editProject.description}
+  onChange={(e) =>
+    setEditProject((prev) => ({
+      ...prev,
+      description: e.target.value,
+    }))
+  }
+  fullWidth
+  margin="normal"
+  defaultValue={editProject.description}   error={!!errors.description}
+  helperText={errors.description?.message}
+/>
 
-            {/* Start Date */}
-            <TextField
-              label="Start Date"
-              value={editProject.startDate}
-              onChange={(e) =>
-                setEditProject((prev) => ({
-                  ...prev,
-                  startDate: e.target.value,
-                }))
-              }
-              fullWidth
-              margin="normal"
-              {...register("startDate")}
-              error={!!errors.startDate}
-              helperText={errors.startDate?.message}
-            />
+<TextField
+  label="Start Date"
+  value={editProject.startDate}
+  onChange={(e) =>
+    setEditProject((prev) => ({
+      ...prev,
+      startDate: e.target.value,
+    }))
+  }
+  fullWidth
+  margin="normal"
+  defaultValue={editProject.startDate} 
+  error={!!errors.startDate}
+  helperText={errors.startDate?.message}
+/>
 
-            {/* End Date */}
-            <TextField
-              label="End Date"
-              value={editProject.endDate}
-              onChange={(e) =>
-                setEditProject((prev) => ({
-                  ...prev,
-                  endDate: e.target.value,
-                }))
-              }
-              fullWidth
-              margin="normal"
-              {...register("endDate")}
-              error={!!errors.endDate}
-              helperText={errors.endDate?.message}
-            />
+<TextField
+  label="End Date"
+  value={editProject.endDate}
+  onChange={(e) =>
+    setEditProject((prev) => ({
+      ...prev,
+      endDate: e.target.value,
+    }))
+  }
+  fullWidth
+  margin="normal"
+  defaultValue={editProject.endDate} 
+  error={!!errors.endDate}
+  helperText={errors.endDate?.message}
+/>
+
 
             {/* Status */}
             <Autocomplete
@@ -438,6 +484,8 @@ function ExistingProjects() {
         </DialogContent>
       </Dialog>
     </div>
+<ToastContainer />
+    </>
   );
 }
 

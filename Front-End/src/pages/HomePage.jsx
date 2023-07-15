@@ -107,6 +107,7 @@ function HomePage() {
       </Sidebar>
 
       <section className="homepage-routes">
+        {/* <Dashboard /> */}
         <Routes>
       <Route path="/newProject" element={<NewProject />} />
       <Route path='/existingProjects' element={<ExistingProjects />} />

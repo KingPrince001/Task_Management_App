@@ -6,6 +6,8 @@ import { projectWithMembersStart, projectWithMembersSuccess, projectWithMembersF
 import { statusStart, statusSuccess, statusFailure } from './filterByStatusSlice';
 import { urgencyStart, urgencySuccess, urgencyFailure } from './filterByUrgencySlice';
 import { categoryStart, categorySuccess, categoryFailure } from './filterByCategorySlice';
+import { updateProjectStart, updateProjectSuccess, updateProjectFailure } from './updateProjectSlice';
+import {updateMembersAssignedStart, updateMembersAssignedSuccess, updateMembersAssignedFailure} from './updateMembersAssignedSlice';
 import axios from 'axios';
 import { apiDomain } from '../utils/utils';
 import { toast } from 'react-toastify';
@@ -112,7 +114,31 @@ console.log(`response api: ${response.data}`);
 };
 
 
-//assign members to project
+//update project
+
+export const updateProject = async (updateProjectData,projectId, user, dispatch) => {
+  try {
+    // Start the update project request
+    dispatch(updateProjectStart());
+
+    // Perform database insert operation for the updateProject
+    const response = await axios.put(`${apiDomain}/updateProject/${projectId}`, updateProjectData);
+    const updateProject = response.data;
+console.log(`response api: ${updateProject}`);
+    // updateProject  successful
+    dispatch(updateProjectSuccess(updateProject));
+    console.log('updateProject api:', updateProject);
+    // Return the inserted updateProject data
+    return updateProject;
+  } catch (error) {
+    // Handle error
+    dispatch(updateProjectFailure());
+    console.log(error);
+    throw error;
+  }
+};
+
+// assign members to project
 export const assignMembersToProject = async (projectId, assignedMembersArray, user, dispatch) => {
   try {
     // Start the assigned members request
@@ -137,6 +163,35 @@ console.log(memberData);
     // Handle error
     console.log(error);
     dispatch(assignMembersFailure());
+    throw error;
+  }
+};
+
+//assign members to project
+export const updateAssignedMembersToProject = async (projectId, assignedMembers, user, dispatch) => {
+  try {
+    // Start the update assigned members request
+    dispatch(updateMembersAssignedStart());
+
+    const updatedMemberData = {
+      projectId: projectId,
+      userIds: assignedMembers, // Pass the array of assigned member IDs directly
+    };
+console.log(updatedMemberData);
+    // Perform database insert operation for all members
+    const response = await axios.put(`${apiDomain}/updateAssignedMembers/${projectId}`, updatedMemberData);
+    const updatedAssignedMembers = response.data;
+    console.log(`response members: ${response.data}`);
+    
+
+    // Assigned members assignment successful
+    dispatch(updateMembersAssignedSuccess());
+
+    
+  } catch (error) {
+    // Handle error
+    console.log(error);
+    dispatch(updateMembersAssignedFailure());
     throw error;
   }
 };
