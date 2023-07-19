@@ -1,6 +1,14 @@
 
 .projects-display-section {
 /* border:2px solid ; */
-margin-top:20px;
+box-shadow: 2px 2px 2px whitesmoke;
+background-color: whitesmoke;
+margin-left: 10px;
+margin-top:10px;
 width: 50vw;
+}
+
+.app-bar {
+flex-grow: 1;
+width: 80.5vw;
 }

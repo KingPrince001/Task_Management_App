@@ -5,6 +5,7 @@ import FilterByStatus from "../components/FilterByStatus";
 import FilterByUrgency from "../components/FilterByUrgency";
 import FilterByCategory from "../components/FilterByCategory";
 import CircularProgress from '@mui/material/CircularProgress';
+import TopBar from '../components/TopBar';
 import './pages-css/dashboard.css';
 
 function Dashboard() {
@@ -19,8 +20,12 @@ function Dashboard() {
     }, 1000); // Simulating a loading delay of 1 second
   };
 
-  return (
+  return (<div>
+  <div className="app-bar">
+    <TopBar />
+  </div>
     <div className="projects-display-section">
+      
       <ProjectFilters onChange={handleFilterChange} />
       {activeFilter === 'category' && (
         <>
@@ -50,6 +55,7 @@ function Dashboard() {
         </>
       )}
       {activeFilter === null && <ProjectsTable />}
+    </div>
     </div>
   );
 }

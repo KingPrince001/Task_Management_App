@@ -60,7 +60,7 @@ useEffect(()=>{
 
   return (
     <Container>
-      <Typography variant="h2" style={{ fontSize: '20px' }}>
+      <Typography variant="h2" style={{ fontSize: '20px', margin:'10px' }}>
         Project Summary
       </Typography>
 

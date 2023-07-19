@@ -99,13 +99,7 @@ function HomePage() {
           <MenuItem title="FAQ" icon={<FAQIcon />} component={<Link to='faq' />} >FAQ</MenuItem>
 
          
-          <SubMenu title="Additional Features" label="Additional Features" open={openSubMenu === "AdditionalFeatures"} onClick={() => handleSubMenuClick("AdditionalFeatures")}>
-            <MenuItem icon={<TaskDependenciesIcon />} component={<Link to='taskDependencies' />}>Task Dependencies</MenuItem>
-            <MenuItem icon={<TaskLabelsIcon />} component={<Link to='taskLabels' />}>Task Labels and Tags</MenuItem>
-            <MenuItem icon={<TaskAttachmentsIcon />} component={<Link to='taskAttachments' />}>Task Attachments</MenuItem>
-            <MenuItem icon={<TaskRemindersIcon />} component={<Link to='taskReminders' />}>Task Reminders</MenuItem>
-            <MenuItem icon={<TaskAnalyticsIcon />} component={<Link to='taskAnalytics' />}>Task Analytics and Reports</MenuItem>
-          </SubMenu>
+         
         </Menu>
       </Sidebar>
 

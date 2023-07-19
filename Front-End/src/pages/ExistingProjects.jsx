@@ -96,7 +96,7 @@ const handleSave = () => {
     console.log("Delete project with ID:", projectId);
   };
 
-  return (
+  return (<div style={{margin:'10px'}}>
     <Grid container spacing={2}>
       {isLoading ? (
         <Grid item xs={12} align="center">
@@ -198,6 +198,7 @@ const handleSave = () => {
         />
       )}
     </Grid>
+    </div>
   );
 }
 

@@ -31,7 +31,7 @@ const LoginForm = () => {
     const success = await loginUser(dispatch, data);
     console.log(success)
     if (success) {
-      navigate('/homePage');
+      navigate('/homePage/dashboard');
     }
     setIsLoading(false); // Set loading state back to false
   };
