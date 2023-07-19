@@ -18,12 +18,20 @@ import CircularProgress from '@mui/material/CircularProgress';
 const schema = yup.object().shape({
   projectName: yup.string().required('Project name is required'),
   description: yup.string().required('Description is required'),
-  startDate: yup.string().required('Start date is required'),
-  endDate: yup.string().required('End date is required'),
+  startDate: yup
+    .date()
+    .min(new Date(), 'Start date must be equal to or greater than the current date', { excludeUndefined: true, exclusive: false })
+    .required('Start date is required'),
+  endDate: yup
+    .date()
+    .min(yup.ref('startDate'), 'End date must be greater than the start date')
+    .required('End date is required'),
   urgency: yup.string().required('Urgency is required'),
   category: yup.string().required('Category is required'),
   status: yup.string().required('Status is required'),
 });
+
+
 
 const projectCategories = [
   { label: 'Technology' },
@@ -47,6 +55,8 @@ const statusOptions = [
   { label: 'In Progress', disabled: true },
   { label: 'Completed', disabled: true },
 ];
+// Filter out disabled options
+const filteredStatusOptions = statusOptions.filter(option => !option.disabled);
 
 function NewProject() {
   const dispatch = useDispatch();
@@ -209,25 +219,26 @@ function NewProject() {
                 />
                 <br />
                 <Autocomplete
-                  value={status}
-                  onChange={(event, newValue) => {
-                    setStatus(newValue);
-                  }}
-                  style={{width:'100%'}}
-                  isOptionEqualToValue={(option, value) => option.label === value.label}
-                  options={statusOptions}
-                  getOptionLabel={(option) => option.label}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Status"
-                      fullWidth
-                      {...register('status')}
-                      error={!!errors.status}
-                      helperText={errors.status?.message}
-                    />
-                  )}
-                />
+  value={status}
+  onChange={(event, newValue) => {
+    setStatus(newValue);
+  }}
+  style={{width:'100%'}}
+  isOptionEqualToValue={(option, value) => option.label === value.label}
+  options={filteredStatusOptions}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Status"
+      fullWidth
+      {...register('status')}
+      error={!!errors.status}
+      helperText={errors.status?.message}
+    />
+  )}
+/>
+
               </div>
               <br />
               <Autocomplete

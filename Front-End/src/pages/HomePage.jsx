@@ -21,7 +21,10 @@ import Logo from '../assets/puppycup.jpg';
 import NewProject from './NewProject';
 import ExistingProjects from './ExistingProjects';
 import Dashboard from './Dashboard';
+import Notifications from './Notifications';
 import Account from './Account';
+import Privacy from './Privacy';
+import FAQ from './FAQ';
 import './homepage.css';
 import { useNavigate } from "react-router-dom";
 import { logOutuser } from "../redux/apiCall";
@@ -93,7 +96,7 @@ function HomePage() {
 
           <MenuItem title="Logout" onClick={handleLogout} icon={<LogoutRoundedIcon />} >Logout</MenuItem>
 
-          <MenuItem title="FAQ" icon={<FAQIcon />} component={<Link to='FAQ' />} >FAQ</MenuItem>
+          <MenuItem title="FAQ" icon={<FAQIcon />} component={<Link to='faq' />} >FAQ</MenuItem>
 
          
           <SubMenu title="Additional Features" label="Additional Features" open={openSubMenu === "AdditionalFeatures"} onClick={() => handleSubMenuClick("AdditionalFeatures")}>
@@ -113,6 +116,9 @@ function HomePage() {
       <Route path='/existingProjects' element={<ExistingProjects />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path='/account' element={<Account />} />
+      <Route path='/privacy' element={<Privacy />} />
+      <Route path='/notifications' element={<Notifications />} />
+      <Route path='/faq' element={<FAQ />} />
       </Routes>
       </section>
 
