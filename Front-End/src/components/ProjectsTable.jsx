@@ -21,8 +21,8 @@ function ProjectsTable() {
                 <TableCell>Project</TableCell>
                 <TableCell>Task</TableCell>
                 <TableCell>Category</TableCell>
-                <TableCell>Start Date</TableCell>
-                <TableCell>End Date</TableCell>
+              
+                <TableCell>Due Date</TableCell>
                 <TableCell>Urgency</TableCell>
                 
                 <TableCell>Status</TableCell>
@@ -37,7 +37,7 @@ function ProjectsTable() {
                   <TableCell>{project.projectName}</TableCell>
                   <TableCell>{project.description}</TableCell>
                   <TableCell>{project.category}</TableCell>
-                  <TableCell>{formatDate(project.startDate)}</TableCell>
+               
                   <TableCell>{formatDate(project.endDate)}</TableCell>
                   <TableCell>{project.urgency}</TableCell>
                  

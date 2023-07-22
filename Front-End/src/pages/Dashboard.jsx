@@ -6,6 +6,10 @@ import FilterByUrgency from "../components/FilterByUrgency";
 import FilterByCategory from "../components/FilterByCategory";
 import CircularProgress from '@mui/material/CircularProgress';
 import TopBar from '../components/TopBar';
+import Overview from '../components/overview/Overview';
+import OverallProgress from '../components/overall progress/OverallProgress';
+import Chat from '../components/chat/Chat';
+import Workload from '../components/workload/Workload';
 import './pages-css/dashboard.css';
 
 function Dashboard() {
@@ -24,6 +28,11 @@ function Dashboard() {
   <div className="app-bar">
     <TopBar />
   </div>
+  <div className="overview">
+    <Overview />
+  </div>
+  <div className="master-container">
+   
     <div className="projects-display-section">
       
       <ProjectFilters onChange={handleFilterChange} />
@@ -55,6 +64,18 @@ function Dashboard() {
         </>
       )}
       {activeFilter === null && <ProjectsTable />}
+    </div>
+    <div className="overall-progress">
+      <OverallProgress />
+    </div>
+    </div>
+    <div className="footer">
+<div className="chat">
+<Chat />
+</div>
+<div className="workload">
+<Workload />
+</div>
     </div>
     </div>
   );

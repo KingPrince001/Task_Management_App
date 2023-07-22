@@ -12,3 +12,9 @@ width: 50vw;
 flex-grow: 1;
 width: 80.5vw;
 }
+
+.master-container, .footer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
