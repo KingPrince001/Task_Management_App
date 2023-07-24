@@ -9,6 +9,7 @@ import filterByStatusSlice from "./filterByStatusSlice";
 import filterByUrgencySlice from "./filterByUrgencySlice";
 import updateMembersAssignedSlice from "./updateMembersAssignedSlice";
 import updateProjectSlice from "./updateProjectSlice";
+import projectByNameSlice from "./projectByNameSlice";
 
 
 import {
@@ -29,7 +30,7 @@ const persistConfig = {
   };
 
 
-  const rootReducer = combineReducers({ user: userSlice, userList : userListSlice, project: projectSlice, assignMembers: assignMembersSlice, projectWithMembers: projectWithMembersSlice, status: filterByStatusSlice, urgency: filterByUrgencySlice, category: filterByCategorySlice, updateProject: updateProjectSlice, updateMembersAssigned: updateMembersAssignedSlice});
+  const rootReducer = combineReducers({ user: userSlice, userList : userListSlice, project: projectSlice, assignMembers: assignMembersSlice, projectWithMembers: projectWithMembersSlice, status: filterByStatusSlice, urgency: filterByUrgencySlice, category: filterByCategorySlice, updateProject: updateProjectSlice, updateMembersAssigned: updateMembersAssignedSlice, projectByName: projectByNameSlice});
 
 
   const persistedReducer =  persistReducer(persistConfig,rootReducer);

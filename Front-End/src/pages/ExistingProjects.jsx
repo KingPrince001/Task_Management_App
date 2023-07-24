@@ -1,6 +1,6 @@
-import  { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getProjectWithMembers } from "../redux/apiCall";
+import {  useState } from "react";
+import {  useSelector } from "react-redux";
+
 import { CircularProgress, Card, CardContent, Typography, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -10,32 +10,19 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Autocomplete, TextField, Chip } from "@mui/material";
 
-const ExistingProjects = () => {
-  const dispatch = useDispatch();
-  const projectWithMembers = useSelector((state) => state.projectWithMembers.projectWithMembers);
-  const user = useSelector((state) => state.user.user);
+const ExistingProjects = ({projectWithMembers}) => {
+ 
+
   const userList = useSelector((state) => state.userList.userList);
+ 
 
   const [selectedProject, setSelectedProject] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = projectWithMembers === null;
 
-  useEffect(() => {
-    getProjectsWithMembers();
-  }, []);
 
-  const getProjectsWithMembers = async () => {
-    try {
-      setIsLoading(true);
-      await getProjectWithMembers(dispatch,user);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error fetching project data:", error);
-    }
-  };
-
+  console.log("Project with members state:", projectWithMembers);
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US");
@@ -353,3 +340,5 @@ const ExistingProjects = () => {
 };
 
 export default ExistingProjects;
+
+

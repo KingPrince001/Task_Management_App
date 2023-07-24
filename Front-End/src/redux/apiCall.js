@@ -8,6 +8,7 @@ import { urgencyStart, urgencySuccess, urgencyFailure } from './filterByUrgencyS
 import { categoryStart, categorySuccess, categoryFailure } from './filterByCategorySlice';
 import { updateProjectStart, updateProjectSuccess, updateProjectFailure } from './updateProjectSlice';
 import {updateMembersAssignedStart, updateMembersAssignedSuccess, updateMembersAssignedFailure} from './updateMembersAssignedSlice';
+import { projectByNameStart, projectByNameSuccess, projectByNameFailure } from './projectByNameSlice';
 import axios from 'axios';
 import { apiDomain } from '../utils/utils';
 import { toast } from 'react-toastify';
@@ -50,7 +51,7 @@ position:'top-center'
 })
 // alert('logged in succesfully');
 return true;
-console.log(data);
+
 
     } catch(err) {
 console.log(err)
@@ -211,6 +212,23 @@ export const getProjectWithMembers = async (dispatch, user) => {
   } catch (error) {
     console.log(error)
     dispatch(projectWithMembersFailure());
+  }
+}
+
+//filter by projects name
+export const filterProjectsByName = async (dispatch, user, projectName) => {
+  dispatch(projectByNameStart());
+
+  try {
+    const {data} = await axios.get(`${apiDomain}/getProjectByName/${projectName}`,{
+      headers: {"authorization" : `${user.token}`}
+    });
+    console.log(`token: ${user.token}`)
+    console.log(data);
+    dispatch(projectByNameSuccess(data));
+  } catch (error) {
+    console.log(error)
+    dispatch(projectByNameFailure());
   }
 }
 

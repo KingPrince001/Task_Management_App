@@ -1,4 +1,4 @@
-import { createProject, assignMembersToProject, getProjectWithMembers, filterProjectsByStatus, filterProjectsByUrgency, filterProjectsByCategory, updateProject, updateAssignedMembers } from "../controllers/projectsRoutesControllers.js";
+import { createProject, assignMembersToProject, getProjectWithMembers, filterProjectsByStatus, filterProjectsByUrgency, filterProjectsByCategory, updateProject, updateAssignedMembers, getProjectByName } from "../controllers/projectsRoutesControllers.js";
 
 
 const projectsRoutes = (app) => {
@@ -16,6 +16,9 @@ const projectsRoutes = (app) => {
 
     app.route('/getProjectWithMembers')
     .get(getProjectWithMembers);
+
+    app.route('/getProjectByName/:projectName')
+    .get(getProjectByName);
 
     app.route('/filterByStatus/:status')
     .get(filterProjectsByStatus);

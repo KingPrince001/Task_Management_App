@@ -193,6 +193,48 @@ export const getProjectWithMembers = async (req, res) => {
   }
 };
 
+//filter by project name
+export const getProjectByName = async (req, res) => {
+  try {
+    // Extract the projectName parameter from the request query
+    const { projectName } = req.params;
+
+    let pool = await sql.connect(config.sql);
+
+    // Execute the SELECT statement with a WHERE clause to filter by projectName
+    const result = await pool
+      .request()
+      .query(`
+        SELECT
+          p.projectId,
+          p.projectName,
+          p.description,
+          p.startDate,
+          p.endDate,
+          p.urgency,
+          p.category,
+          p.status,
+          u.user_id,
+          u.username,
+          u.email
+        FROM
+          projects p
+        JOIN
+          AssignedMembers am ON p.projectId = am.projectId
+        JOIN
+          users u ON am.user_id = u.user_id
+        WHERE
+        p.projectName LIKE '%${projectName}%'`);
+
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'An error occurred while retrieving projects by name' });
+  } finally {
+    sql.close();
+  }
+};
+
 
 //filter by status
 export const filterProjectsByStatus = async (req, res) => {

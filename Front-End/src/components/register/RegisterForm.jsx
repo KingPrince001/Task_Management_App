@@ -1,4 +1,4 @@
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -7,7 +7,7 @@ import { AccountCircle, Email, Lock, LockOpen } from '@mui/icons-material';
 import * as yup from 'yup';
 import './registerform.css'
 import { registerUser } from "../../redux/apiCall";
-import {useDispatch,useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import { useNavigate } from "react-router-dom";
 
 
@@ -39,11 +39,19 @@ const RegisterForm = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
+  const onSubmit =  async (data) => {
     console.log(data);
-	const {username,email,password} = data;
-	registerUser(dispatch,{username,email,password});
-};
+    try {
+      const { username, email, password } = data;
+      await registerUser(dispatch, { username, email, password });
+
+      // After successful registration, navigate to the login page
+      navigate('/login');
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
+  };
+
 
  
 

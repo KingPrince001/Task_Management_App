@@ -12,11 +12,6 @@ import AccountIcon from '@mui/icons-material/AccountCircle';
 import PrivacyIcon from '@mui/icons-material/PrivacyTip';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import FAQIcon from '@mui/icons-material/Help';
-import TaskDependenciesIcon from '@mui/icons-material/DeviceHub';
-import TaskLabelsIcon from '@mui/icons-material/Label';
-import TaskAttachmentsIcon from '@mui/icons-material/AttachFile';
-import TaskRemindersIcon from '@mui/icons-material/AccessTime';
-import TaskAnalyticsIcon from '@mui/icons-material/Assessment';
 import Logo from '../assets/puppycup.jpg';
 import NewProject from './NewProject';
 import ExistingProjects from './ExistingProjects';
@@ -25,6 +20,7 @@ import Notifications from './Notifications';
 import Account from './Account';
 import Privacy from './Privacy';
 import FAQ from './FAQ';
+import Test from '../components/test';
 import './homepage.css';
 import { useNavigate } from "react-router-dom";
 import { logOutuser } from "../redux/apiCall";
@@ -107,7 +103,7 @@ function HomePage() {
         {/* <Dashboard /> */}
         <Routes>
       <Route path="/newProject" element={<NewProject />} />
-      <Route path='/existingProjects' element={<ExistingProjects />} />
+      <Route path='/existingProjects' element={<Test />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path='/account' element={<Account />} />
       <Route path='/privacy' element={<Privacy />} />

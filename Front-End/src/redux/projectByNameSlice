@@ -1,0 +1,27 @@
+import {createSlice} from '@reduxjs/toolkit'
+const projectByNameSlice = createSlice({
+    name:"projectByName",
+    initialState:{
+        projectByName:null,
+        isFetching:false,
+        error:false
+    },
+    reducers:{
+        projectByNameStart : (state) => {
+            state.isFetching = true;
+            state.error = false;
+        },
+        projectByNameSuccess: (state, action) => {
+            state.isFetching = false;
+            state.projectByName = action.payload;
+            state.error = false;
+        },
+        projectByNameFailure : (state) => {
+            state.isFetching = false;
+            state.error = true;
+        },
+        }
+    })
+
+export const {projectByNameStart, projectByNameSuccess, projectByNameFailure} = projectByNameSlice.actions;
+export default projectByNameSlice.reducer;
