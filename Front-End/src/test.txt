@@ -28,7 +28,7 @@ const ExistingProjects = () => {
   const getProjectsWithMembers = async () => {
     try {
       setIsLoading(true);
-      await getProjectWithMembers(dispatch,user);
+      await dispatch(getProjectWithMembers(user));
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -75,12 +75,6 @@ const ExistingProjects = () => {
     setOpenDialog(true);
   };
 
-    const handleEditProject = (projectId) => {
-    const selectedProject = groupedProjects.find((project) => project.projectId === projectId);
-    setSelectedProject(selectedProject);
-    setOpenDialog2(true);
-  };
-  
   const handleCloseDialog = () => {
     setSelectedProject(null);
     setOpenDialog(false);
@@ -94,6 +88,17 @@ const ExistingProjects = () => {
   const handleSave = (data) => {
     // Implement the logic to handle saving a project
     console.log("Save project data:", data);
+  };
+
+  const handleEditProject = (projectId) => {
+    const selectedProject = groupedProjects.find((project) => project.projectId === projectId);
+    setSelectedProject(selectedProject);
+    setOpenDialog2(true);
+  };
+
+  const handleDeleteProject = (projectId) => {
+    // Implement the logic to handle deleting a project
+    console.log("Delete project with ID:", projectId);
   };
 
   // Validation schema for the edit project form
@@ -249,6 +254,7 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, projectName: e.target.value }))}
                 fullWidth
                 margin="normal"
+                defaultValue={selectedProject.projectName}
                 error={!!errors.projectName}
                 helperText={errors.projectName?.message}
               />
@@ -260,6 +266,7 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, description: e.target.value }))}
                 fullWidth
                 margin="normal"
+                defaultValue={selectedProject.description}
                 error={!!errors.description}
                 helperText={errors.description?.message}
               />
@@ -271,6 +278,7 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, startDate: e.target.value }))}
                 fullWidth
                 margin="normal"
+                defaultValue={selectedProject.startDate}
                 error={!!errors.startDate}
                 helperText={errors.startDate?.message}
               />
@@ -282,6 +290,7 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, endDate: e.target.value }))}
                 fullWidth
                 margin="normal"
+                defaultValue={selectedProject.endDate}
                 error={!!errors.endDate}
                 helperText={errors.endDate?.message}
               />

@@ -18,3 +18,19 @@ width: 80.5vw;
     align-items: center;
     gap: 20px;
 }
+
+.chat {
+    height: 50vh;
+ background-color: whitesmoke;
+}
+
+.footer {
+    margin: 40px;
+    gap: 30px;
+    height: 30vh;
+    
+}
+.overall-progress, .workload {
+    /* height: 80vh; */
+    width: 35vw;
+}

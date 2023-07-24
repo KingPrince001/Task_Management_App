@@ -65,13 +65,13 @@ function Dashboard() {
       )}
       {activeFilter === null && <ProjectsTable />}
     </div>
-    <div className="overall-progress">
-      <OverallProgress />
+    <div className="chat">
+    <Chat />
     </div>
     </div>
     <div className="footer">
-<div className="chat">
-<Chat />
+<div className="overall-progress">
+<OverallProgress />
 </div>
 <div className="workload">
 <Workload />
