@@ -7,8 +7,8 @@ import { statusStart, statusSuccess, statusFailure } from './filterByStatusSlice
 import { urgencyStart, urgencySuccess, urgencyFailure } from './filterByUrgencySlice';
 import { categoryStart, categorySuccess, categoryFailure } from './filterByCategorySlice';
 import { updateProjectStart, updateProjectSuccess, updateProjectFailure } from './updateProjectSlice';
-import {updateMembersAssignedStart, updateMembersAssignedSuccess, updateMembersAssignedFailure} from './updateMembersAssignedSlice';
 import { projectByNameStart, projectByNameSuccess, projectByNameFailure } from './projectByNameSlice';
+import {deleteProjectStart, deleteProjectSuccess, deleteProjectFailure} from "./deleteProjectSlice";
 import axios from 'axios';
 import { apiDomain } from '../utils/utils';
 import { toast } from 'react-toastify';
@@ -115,30 +115,6 @@ console.log(`response api: ${response.data}`);
 };
 
 
-//update project
-
-export const updateProject = async (updateProjectData,projectId, user, dispatch) => {
-  try {
-    // Start the update project request
-    dispatch(updateProjectStart());
-
-    // Perform database insert operation for the updateProject
-    const response = await axios.put(`${apiDomain}/updateProject/${projectId}`, updateProjectData);
-    const updateProject = response.data;
-console.log(`response api: ${updateProject}`);
-    // updateProject  successful
-    dispatch(updateProjectSuccess(updateProject));
-    console.log('updateProject api:', updateProject);
-    // Return the inserted updateProject data
-    return updateProject;
-  } catch (error) {
-    // Handle error
-    dispatch(updateProjectFailure());
-    console.log(error);
-    throw error;
-  }
-};
-
 // assign members to project
 export const assignMembersToProject = async (projectId, assignedMembersArray, user, dispatch) => {
   try {
@@ -168,50 +144,60 @@ console.log(memberData);
   }
 };
 
-//assign members to project
-export const updateAssignedMembersToProject = async (projectId, assignedMembers, user, dispatch) => {
-  try {
-    // Start the update assigned members request
-    dispatch(updateMembersAssignedStart());
 
-    const updatedMemberData = {
-      projectId: projectId,
-      userIds: assignedMembers, // Pass the array of assigned member IDs directly
-    };
-console.log(updatedMemberData);
-    // Perform database insert operation for all members
-    const response = await axios.put(`${apiDomain}/updateAssignedMembers/${projectId}`, updatedMemberData);
-    const updatedAssignedMembers = response.data;
-    console.log(`response members: ${response.data}`);
-    
-
-    // Assigned members assignment successful
-    dispatch(updateMembersAssignedSuccess());
-
-    
-  } catch (error) {
-    // Handle error
-    console.log(error);
-    dispatch(updateMembersAssignedFailure());
-    throw error;
-  }
-};
 
 
 //get project plus members assigned
-export const getProjectWithMembers = async (dispatch, user) => {
+export const getProjectWithMembers = async (dispatch) => {
   dispatch(projectWithMembersStart());
 
   try {
-    const {data} = await axios.get(`${apiDomain}/getProjectWithMembers`,{
-      headers: {"authorization" : `${user.token}`}
-    });
-    console.log(`token: ${user.token}`)
+    const {data} = await axios.get(`${apiDomain}/getProjectWithMembers`);
     console.log(data);
     dispatch(projectWithMembersSuccess(data));
   } catch (error) {
     console.log(error)
     dispatch(projectWithMembersFailure());
+  }
+}
+
+// update project
+export const updateProject = async (projectId, updatedProjectData, dispatch) => {
+  try {
+    // Start the project update request
+    dispatch(updateProjectStart());
+
+    // Perform database update operation for the project
+    const response = await axios.put(`${apiDomain}/updateProjectWithMembers/${projectId}`, updatedProjectData);
+    const updatedProject = response.data;
+    console.log(`response api:`, updatedProject);
+
+    // Project update successful
+    dispatch(updateProjectSuccess(updatedProject));
+    console.log(`updated project:`, updatedProject);
+
+    // Return the updated project data
+    return updatedProject;
+  } catch (error) {
+    // Handle error
+    dispatch(updateProjectFailure());
+    console.log(error);
+    throw error;
+  }
+};
+
+//delete project
+export const deleteProject = async (dispatch, projectId) => {
+  dispatch(deleteProjectStart());
+
+  try {
+    const {data} = await axios.delete(`${apiDomain}/deleteProject/${projectId}`);
+   
+
+    dispatch(deleteProjectSuccess());
+  } catch (error) {
+    console.log(error)
+    dispatch(deleteProjectFailure());
   }
 }
 

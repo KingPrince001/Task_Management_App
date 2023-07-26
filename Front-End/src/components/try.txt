@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -87,36 +87,23 @@ const ExistingProjects = () => {
   };
 
   const handleEditProject = (projectId) => {
-    // Find the selected project
     const selectedProject = groupedProjects.find(
       (project) => project.projectId === projectId
     );
-  
-    // Check if selectedProject is defined before further processing
-    if (!selectedProject) {
-      // Handle the error condition
-      console.error("Selected project not found.");
-      return;
-    }
-  
-    // Check if selectedProject.members is defined before accessing its properties
+
+    // Map the existing member IDs to user objects from the userList
     const selectedMembers = selectedProject.members?.map((member) => {
-      if (!member) {
-        return null; // Or handle the error condition appropriately
-      }
-      const user = userList.find((user) => user.user_id === member.user_id);
+      const user = userList?.find((user) => user.user_id === member.user_id);
       return user;
     });
-  
+
     setSelectedProject({
       ...selectedProject,
       members: selectedMembers || [], // Ensure selectedMembers is not null
     });
-  
+
     setOpenDialog2(true);
   };
-  
-  
 
   const handleCloseDialog = () => {
     setSelectedProject({});
@@ -186,7 +173,7 @@ const ExistingProjects = () => {
     // Check if value is null or empty (no members selected)
     if (!value || value?.length === 0) {
       // If no members selected, use the existing assignedMembers (if available) or an empty array
-      const existingAssignedMembers = selectedProject?.assignedMembers || [];
+      const existingAssignedMembers = selectedProject.assignedMembers || [];
       setSelectedProject((prevState) => ({
         ...prevState,
         members: value,
@@ -205,15 +192,6 @@ const ExistingProjects = () => {
 
   const handleUpdateProject = async (data) => {
     try {
-      // Check if selectedProject is defined and has necessary properties
-      if (!selectedProject || !selectedProject.projectId) {
-        // Handle the error condition
-        toast.error("Error updating project: Invalid project data!", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-        return;
-      }
-  
       const {
         projectId,
         projectName,
@@ -225,7 +203,7 @@ const ExistingProjects = () => {
         status,
         assignedMembers,
       } = selectedProject;
-  
+
       const updatedProjectData = {
         projectName,
         description,
@@ -236,19 +214,19 @@ const ExistingProjects = () => {
         status,
         assignedMembers,
       };
-  
+
       const updatedProject = await updateProject(
         projectId,
         updatedProjectData,
         dispatch
       );
-  
+
       setGroupedProjects((prevProjects) =>
         prevProjects.map((project) =>
           project.projectId === updatedProject.projectId ? updatedProject : project
         )
       );
-  
+
       toast.success("Project updated successfully!", {
         position: toast.POSITION.TOP_RIGHT,
       });
@@ -258,7 +236,6 @@ const ExistingProjects = () => {
       });
     }
   };
-  
 
   const handleDeleteProject = async (projectId) => {
     try {
@@ -541,24 +518,34 @@ const ExistingProjects = () => {
   )}
 />
 
-{selectedProject.members ? (
-          <Autocomplete
-            multiple
-            options={userList}
-            value={selectedProject.members}
-            onChange={handleMemberSelection}
-            getOptionLabel={(option) => option.username}
-            isOptionEqualToValue={(option, value) => option.username === value.username}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip variant="outlined" label={option.username} {...getTagProps({ index })} />
-              ))
-            }
-            renderInput={(params) => <TextField {...params} label="Assign to Members" />}
+<Controller
+  name="members"
+  control={control}
+  defaultValue={selectedProject.members || []}
+  render={({ field }) => (
+    <Autocomplete
+      {...field}
+      multiple
+      options={userList}
+      value={selectedProject.members || []}
+      onChange={handleMemberSelection}
+      getOptionLabel={(option) => option.username}
+      isOptionEqualToValue={(option, value) => option.username === value.username}
+      renderTags={(value, getTagProps) =>
+        value.map((option, index) => (
+          <Chip
+            variant="outlined"
+            label={option.username}
+            {...getTagProps({ index })}
           />
-        ) : (
-          <div>Loading members...</div> // Add a loading indicator or any other UI when members are not available
-        )}
+        ))
+      }
+      renderInput={(params) => (
+        <TextField {...params} label="Assign to Members" />
+      )}
+    />
+  )}
+/>
 
                 <DialogActions>
                   <Button onClick={handleCloseDialog2}>Cancel</Button>

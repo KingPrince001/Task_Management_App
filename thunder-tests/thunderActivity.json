@@ -46,13 +46,27 @@
         "colId": "history",
         "containerId": "",
         "name": "http://localhost:8081/getProjectByName/Finance",
-        "url": "http://localhost:8081/getProjectByName/event",
-        "method": "GET",
+        "url": "http://localhost:8081/assignMembersToProject",
+        "method": "POST",
         "sortNum": 0,
         "created": "2023-07-24T16:51:25.614Z",
-        "modified": "2023-07-24T17:02:01.927Z",
+        "modified": "2023-07-25T13:16:04.338Z",
         "headers": [],
         "params": [],
+        "body": {
+            "type": "formencoded",
+            "raw": "",
+            "form": [
+                {
+                    "name": "projectId",
+                    "value": "1002"
+                },
+                {
+                    "name": "userIds",
+                    "value": "2"
+                }
+            ]
+        },
         "tests": []
     },
     {
@@ -64,9 +78,43 @@
         "method": "GET",
         "sortNum": 0,
         "created": "2023-07-24T16:51:32.556Z",
-        "modified": "2023-07-24T16:55:29.285Z",
+        "modified": "2023-07-25T13:07:52.407Z",
         "headers": [],
         "params": [],
+        "body": {
+            "type": "formencoded",
+            "raw": "",
+            "form": [
+                {
+                    "name": "projectName",
+                    "value": "Client Side"
+                },
+                {
+                    "name": "description",
+                    "value": "style pages"
+                },
+                {
+                    "name": "startDate",
+                    "value": "2023-07-23"
+                },
+                {
+                    "name": "endDate",
+                    "value": "2023-08-24"
+                },
+                {
+                    "name": "urgency",
+                    "value": "low"
+                },
+                {
+                    "name": "category",
+                    "value": "technology"
+                },
+                {
+                    "name": "status",
+                    "value": "in progress"
+                }
+            ]
+        },
         "tests": []
     }
 ]

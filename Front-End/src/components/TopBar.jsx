@@ -53,8 +53,8 @@ const userProfile = {
 
 const TopBar = () => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
-  const projectByName = useSelector((state) => state.projectByName.projectByName);
+  const user = useSelector((state) => state.user?.user);
+  const projectByName = useSelector((state) => state.projectByName?.projectByName);
 
   const [projectName, setProjectName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -83,7 +83,7 @@ const TopBar = () => {
 
   useEffect(() => {
     setLoading(false);
-    setNoResults(projectByName.length === 0);
+    setNoResults(projectByName?.length === 0);
   }, [projectByName]);
 
   const [showDetails, setShowDetails] = useState(false);

@@ -1,6 +1,6 @@
-import  { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getProjectWithMembers } from "../redux/apiCall";
+import { updateProject } from "../redux/apiCall";
 import { CircularProgress, Card, CardContent, Typography, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -9,33 +9,22 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Autocomplete, TextField, Chip } from "@mui/material";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const ExistingProjects = () => {
-  const dispatch = useDispatch();
-  const projectWithMembers = useSelector((state) => state.projectWithMembers.projectWithMembers);
-  const user = useSelector((state) => state.user.user);
+const ExistingProjects = ({projectWithMembers}) => {
+ 
+const dispatch = useDispatch();
   const userList = useSelector((state) => state.userList.userList);
+ const user = useSelector((state) =>state.user.user);
 
   const [selectedProject, setSelectedProject] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = projectWithMembers === null;
 
-  useEffect(() => {
-    getProjectsWithMembers();
-  }, []);
 
-  const getProjectsWithMembers = async () => {
-    try {
-      setIsLoading(true);
-      await dispatch(getProjectWithMembers(user));
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error fetching project data:", error);
-    }
-  };
-
+  console.log("Project with members state:", projectWithMembers);
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US");
@@ -75,6 +64,12 @@ const ExistingProjects = () => {
     setOpenDialog(true);
   };
 
+    const handleEditProject = (projectId) => {
+    const selectedProject = groupedProjects.find((project) => project.projectId === projectId);
+    setSelectedProject(selectedProject);
+    setOpenDialog2(true);
+  };
+  
   const handleCloseDialog = () => {
     setSelectedProject(null);
     setOpenDialog(false);
@@ -85,21 +80,52 @@ const ExistingProjects = () => {
     setOpenDialog2(false);
   };
 
-  const handleSave = (data) => {
-    // Implement the logic to handle saving a project
-    console.log("Save project data:", data);
+  const handleSave = async (data) => {
+    try {
+      // Set the assignedMembers field with selected members
+      const assignedMembers = selectedProject.members.map((member) => member.user_id);
+  
+      // Combine the existing selectedProject data with the updated data from the form
+      const updatedProjectData = {
+        ...selectedProject,
+        projectName: data.projectName,
+        description: data.description,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        urgency: data.urgency,
+        category: data.category,
+        status: data.status,
+        assignedMembers: assignedMembers,
+      };
+  
+      // Dispatch the API call to update the project
+      await updateProject(selectedProject.projectId, updatedProjectData, user, dispatch);
+  
+      handleCloseDialog2();
+  
+      // Show a success toast notification
+      toast.success('Project updated successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } catch (error) {
+      // Handle error
+      console.log(error);
+      toast.error('Error updating project. Please try again later.', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
   };
-
-  const handleEditProject = (projectId) => {
-    const selectedProject = groupedProjects.find((project) => project.projectId === projectId);
-    setSelectedProject(selectedProject);
-    setOpenDialog2(true);
-  };
-
-  const handleDeleteProject = (projectId) => {
-    // Implement the logic to handle deleting a project
-    console.log("Delete project with ID:", projectId);
-  };
+  
 
   // Validation schema for the edit project form
   const schema = yup.object().shape({
@@ -136,9 +162,14 @@ const ExistingProjects = () => {
 
   // Options for category field
   const categoryOptions = [
-    { label: "Category 1" },
-    { label: "Category 2" },
-    { label: "Category 3" },
+    { label: "Technology" },
+    { label: "Sales" },
+    { label: "Finance" },
+    { label: "marketing" },
+    { label: "Event Management" },
+    { label: "Construction" },
+    { label: "Human Resources" },
+    { label: "Research and Development" },
   ];
 
   const handleMemberSelection = (event, value) => {
@@ -150,7 +181,7 @@ const ExistingProjects = () => {
     }));
   };
 
-  return (
+  return (<>
     <div style={{ margin: "10px" }}>
       <Grid container spacing={2}>
         {isLoading ? (
@@ -254,7 +285,6 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, projectName: e.target.value }))}
                 fullWidth
                 margin="normal"
-                defaultValue={selectedProject.projectName}
                 error={!!errors.projectName}
                 helperText={errors.projectName?.message}
               />
@@ -266,7 +296,6 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, description: e.target.value }))}
                 fullWidth
                 margin="normal"
-                defaultValue={selectedProject.description}
                 error={!!errors.description}
                 helperText={errors.description?.message}
               />
@@ -278,7 +307,6 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, startDate: e.target.value }))}
                 fullWidth
                 margin="normal"
-                defaultValue={selectedProject.startDate}
                 error={!!errors.startDate}
                 helperText={errors.startDate?.message}
               />
@@ -290,46 +318,46 @@ const ExistingProjects = () => {
                 onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, endDate: e.target.value }))}
                 fullWidth
                 margin="normal"
-                defaultValue={selectedProject.endDate}
                 error={!!errors.endDate}
                 helperText={errors.endDate?.message}
               />
 
-              {/* Status */}
-              <Autocomplete
-                value={{ label: selectedProject.status }}
-                onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, status: newValue?.label }))}
-                isOptionEqualToValue={(option, value) => option.label === value.label}
-                options={statusOptions}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField {...params} label="Status" fullWidth error={!!errors.status} helperText={errors.status?.message} />
-                )}
-              />
+       {/* Status */}
+<Autocomplete
+  value={statusOptions.find((option) => option.label === selectedProject.status)}
+  onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, status: newValue?.label }))}
+  isOptionEqualToValue={(option, value) => option.label === value.label}
+  options={statusOptions}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField {...params} label="Status" fullWidth error={!!errors.status} helperText={errors.status?.message} />
+  )}
+/>
 
-              {/* Urgency */}
-              <Autocomplete
-                value={{ label: selectedProject.urgency }}
-                onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, urgency: newValue?.label }))}
-                isOptionEqualToValue={(option, value) => option.label === value.label}
-                options={urgencyOptions}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField {...params} label="Urgency" fullWidth error={!!errors.urgency} helperText={errors.urgency?.message} />
-                )}
-              />
+{/* Urgency */}
+<Autocomplete
+  value={urgencyOptions.find((option) => option.label === selectedProject.urgency)}
+  onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, urgency: newValue?.label }))}
+  isOptionEqualToValue={(option, value) => option.label === value.label}
+  options={urgencyOptions}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField {...params} label="Urgency" fullWidth error={!!errors.urgency} helperText={errors.urgency?.message} />
+  )}
+/>
 
-              {/* Category */}
-              <Autocomplete
-                value={{ label: selectedProject.category }}
-                onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, category: newValue?.label }))}
-                isOptionEqualToValue={(option, value) => option.label === value.label}
-                options={categoryOptions}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField {...params} label="Category" fullWidth error={!!errors.category} helperText={errors.category?.message} />
-                )}
-              />
+{/* Category */}
+<Autocomplete
+  value={categoryOptions.find((option) => option.label === selectedProject.category)}
+  onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, category: newValue?.label }))}
+  isOptionEqualToValue={(option, value) => option.label === value.label}
+  options={categoryOptions}
+  getOptionLabel={(option) => option.label}
+  renderInput={(params) => (
+    <TextField {...params} label="Category" fullWidth error={!!errors.category} helperText={errors.category?.message} />
+  )}
+/>
+
 
               {/* Assigned Members */}
               <Autocomplete
@@ -358,6 +386,456 @@ const ExistingProjects = () => {
         </Dialog>
       )}
     </div>
+<ToastContainer />
+    </>
+  );
+};
+
+export default ExistingProjects;
+
+
+
+
+
+import { useState, useEffect } from "react";
+import { getProjectWithMembers, updateProject, deleteProject } from "../redux/apiCall";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { CircularProgress, Card, CardContent, Typography, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Autocomplete, TextField, Chip } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+
+const ExistingProjects = () => {
+  const dispatch = useDispatch();
+  const projectWithMembers = useSelector((state) => state.projectWithMembers?.projectWithMembers);
+  const userList = useSelector((state) => state.userList?.userList);
+  const isLoading = projectWithMembers === null;
+  const [selectedProject, setSelectedProject] = useState({});
+  const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog2, setOpenDialog2] = useState(false);
+  const [groupedProjects, setGroupedProjects] = useState([]); // State to store the grouped projects
+
+  useEffect(() => {
+    getProjectWithMembers(dispatch);
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Group the projects when projectWithMembers changes
+    const grouped = projectWithMembers?.reduce((result, project) => {
+      const existingProject = result.find((p) => p.projectId === project.projectId);
+      if (existingProject) {
+        existingProject.members.push({
+          username: project.username,
+          email: project.email,
+        });
+      } else {
+        result.push({
+          projectId: project.projectId,
+          projectName: project.projectName,
+          description: project.description,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          urgency: project.urgency,
+          category: project.category,
+          status: project.status,
+          members: [
+            {
+              username: project.username,
+              email: project.email,
+            },
+          ],
+        });
+      }
+      return result;
+    }, []);
+    setGroupedProjects(grouped);
+  }, [projectWithMembers]);
+
+  const handleViewMembers = (projectId) => {
+    const selectedProject = groupedProjects.find((project) => project.projectId === projectId);
+    setSelectedProject(selectedProject);
+    setOpenDialog(true);
+  };
+
+  const handleEditProject = (projectId) => {
+    const selectedProject = groupedProjects.find((project) => project.projectId === projectId);
+    setSelectedProject(selectedProject);
+  
+    // Set initial form values with the selected project data
+    setValue('projectName', selectedProject.projectName);
+    setValue('description', selectedProject.description);
+    setValue('startDate', selectedProject.startDate);
+    setValue('endDate', selectedProject.endDate);
+    setValue('urgency', { label: selectedProject.urgency });
+    setValue('category', { label: selectedProject.category });
+    setValue('status', { label: selectedProject.status });
+  
+    // Open the edit dialog
+    setOpenDialog2(true);
+  };
+  
+  const handleCloseDialog = () => {
+    setSelectedProject(null);
+    setOpenDialog(false);
+  };
+
+  const handleCloseDialog2 = () => {
+    setSelectedProject(null);
+    setOpenDialog2(false);
+  };
+
+  const handleSave = (data) => {
+    // Implement the logic to handle saving a project
+    console.log("Save project data:", data);
+  };
+
+  // Validation schema for the edit project form
+  const schema = yup.object().shape({
+    projectName: yup.string().required("Project name is required"),
+    description: yup.string().required("Description is required"),
+    startDate: yup.string().required("Start date is required"),
+    endDate: yup.string().required("End date is required"),
+    urgency: yup.string().required("Urgency is required"),
+    category: yup.string().required("Category is required"),
+  });
+
+  const { handleSubmit, formState: { errors }, setValue, reset } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = (data) => {
+    handleUpdateProject(data);
+    handleCloseDialog2();
+    // Reset the form after submitting
+    reset();
+  };
+
+  // Options for status field
+  const statusOptions = [
+    { label: "Pending" },
+    { label: "In Progress" },
+    { label: "Completed" },
+  ];
+
+  // Options for urgency field
+  const urgencyOptions = [
+    { label: "Low" },
+    { label: "Medium" },
+    { label: "High" },
+  ];
+
+  // Options for category field
+  const categoryOptions = [
+    { label: "Technology" },
+    { label: "Finance" },
+    { label: "Sales" },
+    { label: "marketing" },
+    { label: "construction" },
+    { label: "Event Management" },
+    { label: "Human Resources" },
+    { label: "Research and Development" },
+  ];
+
+  const handleMemberSelection = (event, value) => {
+    // Implement the logic to handle selected members
+    console.log("Selected members:", value);
+    setSelectedProject((prevState) => ({
+      ...prevState,
+      members: value,
+    }));
+  };
+
+  const handleUpdateProject = async (data) => {
+    try {
+      // Extract the relevant fields from selectedProject
+      const {
+        projectId,
+        projectName,
+        description,
+        startDate,
+        endDate,
+        urgency,
+        category,
+        status,
+        members, // Assuming members is an array of selected members
+      } = selectedProject;
+  
+      // Create the updatedProjectData object
+      const updatedProjectData = {
+        projectId,
+        projectName,
+        description,
+        startDate,
+        endDate,
+        urgency,
+        category,
+        status,
+        assignedMembers: members, // Map members to the expected 'assignedMembers' field in the backend
+      };
+  
+      // Perform the update operation
+      const updatedProject = await updateProject(projectId, updatedProjectData, dispatch);
+
+      setGroupedProjects((prevProjects) =>
+      prevProjects.map((project) =>
+        project.projectId === updatedProject.projectId ? updatedProject : project
+      )
+    );
+
+    // Show a success toast
+    toast.success('Project updated successfully!', {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+    } catch (error) {
+      // Handle errors and show an error toast
+      toast.error('Error updating project!', {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    }
+  };
+  
+  
+
+  // Function to handle the delete operation
+  const handleDeleteProject = async (projectId) => {
+    try {
+      // Perform the delete operation (use your deleteProject API call)
+      await deleteProject(dispatch, projectId);
+  
+      // If successful, update the groupedProjects state to remove the deleted project
+      setGroupedProjects((prevProjects) =>
+        prevProjects.filter((project) => project.projectId !== projectId)
+      );
+  
+      // Show a success toast
+      toast.success('Project deleted successfully!', {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    } catch (error) {
+      // Handle errors and show an error toast
+      console.log(error)
+      toast.error('Error deleting project!', {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    }
+  };
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US');
+  };
+  
+  return (<>
+    <div style={{ margin: "10px" }}>
+      <Grid container spacing={2}>
+        {isLoading ? (
+          <Grid item xs={12} align="center">
+            <CircularProgress />
+          </Grid>
+        ) : (
+          groupedProjects?.map((project) => (
+            <Grid item xs={12}   key={project.projectId}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h5" component="h2">
+                    {project.projectName}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="div">
+                    {project.description}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="div">
+                    Start Date: {formatDate(project.startDate)}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="div">
+                    End Date: {formatDate(project.endDate)}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="div">
+                    Urgency: {project.urgency}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="div">
+                    Category: {project.category}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="div">
+                    Status: {project.status}
+                  </Typography>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleViewMembers(project.projectId)}
+                      style={{ marginTop: "10px" }}
+                      disableElevation // Disable button elevation to prevent focus outline
+                    >
+                      View Members
+                    </Button>
+                    <IconButton
+                      style={{ padding: "2px" }}
+                      color="primary"
+                      onClick={() => handleEditProject(project.projectId)}
+                      aria-label="edit"
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+        style={{ padding: "2px" }}
+        color="secondary"
+        onClick={() => handleDeleteProject(project.projectId)}
+        aria-label="delete"
+      >
+        <DeleteIcon />
+      </IconButton>
+                  </div>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))
+        )}
+      </Grid>
+
+      {selectedProject && (
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle style={{ marginTop: "-10px" }}>{selectedProject.projectName}</DialogTitle>
+          <DialogTitle style={{ marginTop: "-35px", fontSize: "15px" }}>Assigned Members</DialogTitle>
+          <hr style={{ width: "90%", marginTop: "-13px", marginBottom: "-16px" }} />
+          <DialogContent>
+            <DialogContentText>
+              {selectedProject.members?.map((member) => (
+                <Typography key={member.email}>
+                  Username: {member.username}
+                  <br />
+                  Email: {member.email}
+                  <hr />
+                </Typography>
+              ))}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <IconButton edge="end" color="inherit" onClick={handleCloseDialog} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {selectedProject && (
+        <Dialog open={openDialog2} onClose={handleCloseDialog2}>
+          <DialogTitle>Edit Project</DialogTitle>
+          <DialogContent>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Project Name */}
+              <TextField
+                label="Project Name"
+                value={selectedProject.projectName}
+                onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, projectName: e.target.value }))}
+                fullWidth
+                margin="normal"
+                error={!!errors.projectName}
+                helperText={errors.projectName?.message}
+              />
+
+              {/* Description */}
+              <TextField
+                label="Description"
+                value={selectedProject.description}
+                onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, description: e.target.value }))}
+                fullWidth
+                margin="normal"
+                error={!!errors.description}
+                helperText={errors.description?.message}
+              />
+
+              {/* Start Date */}
+              <TextField
+                label="Start Date"
+                value={formatDate(selectedProject.startDate)}
+                onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, startDate: e.target.value }))}
+                fullWidth
+                margin="normal"
+                error={!!errors.startDate}
+                helperText={errors.startDate?.message}
+              />
+
+              {/* End Date */}
+              <TextField
+                label="End Date"
+                value={formatDate(selectedProject.endDate)}
+                onChange={(e) => setSelectedProject((prevState) => ({ ...prevState, endDate: e.target.value }))}
+                fullWidth
+                margin="normal"
+                error={!!errors.endDate}
+                helperText={errors.endDate?.message}
+              />
+
+              {/* Status */}
+              <Autocomplete
+                   value={statusOptions.find((option) => option.label === selectedProject.status)}
+                onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, status: newValue?.label }))}
+                isOptionEqualToValue={(option, value) => option.label === value.label}
+                options={statusOptions}
+                getOptionLabel={(option) => option.label}
+                renderInput={(params) => (
+                  <TextField {...params} label="Status" fullWidth error={!!errors.status} helperText={errors.status?.message} />
+                )}
+              />
+
+              {/* Urgency */}
+              <Autocomplete
+                value={urgencyOptions.find((option) => option.label === selectedProject.urgency)}
+                onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, urgency: newValue?.label }))}
+                isOptionEqualToValue={(option, value) => option.label === value.label}
+                options={urgencyOptions}
+                getOptionLabel={(option) => option.label}
+                renderInput={(params) => (
+                  <TextField {...params} label="Urgency" fullWidth error={!!errors.urgency} helperText={errors.urgency?.message} />
+                )}
+              />
+
+              {/* Category */}
+              <Autocomplete
+               value={categoryOptions.find((option) => option.label === selectedProject.category)}
+                onChange={(event, newValue) => setSelectedProject((prevState) => ({ ...prevState, category: newValue?.label }))}
+                isOptionEqualToValue={(option, value) => option.label === value.label}
+                options={categoryOptions}
+                getOptionLabel={(option) => option.label}
+                renderInput={(params) => (
+                  <TextField {...params} label="Category" fullWidth error={!!errors.category} helperText={errors.category?.message} />
+                )}
+              />
+
+              {/* Assigned Members */}
+             <Autocomplete
+  multiple
+  options={userList}
+  value={selectedProject.members}
+  onChange={handleMemberSelection}
+  getOptionLabel={(option) => option.username}
+  isOptionEqualToValue={(option, value) => option.username === value.username} // Customize the equality test based on 'username'
+  renderTags={(value, getTagProps) =>
+    value.map((option, index) => (
+      <Chip variant="outlined" label={option.username} {...getTagProps({ index })} />
+    ))
+  }
+  renderInput={(params) => <TextField {...params} label="Assign to Members" />}
+/>
+
+              <DialogActions>
+                <Button onClick={handleCloseDialog2}>Cancel</Button>
+                <Button type="submit" color="primary">
+                  Save
+                </Button>
+              </DialogActions>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+<ToastContainer />
+    </>
   );
 };
 

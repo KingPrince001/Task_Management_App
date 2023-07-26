@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 
 function FilterByUrgency() {
   const dispatch = useDispatch();
-  const urgencyData = useSelector((state) => state.urgency.urgency);
+  const urgencyData = useSelector((state) => state.urgency?.urgency);
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -21,8 +21,8 @@ function FilterByUrgency() {
                   <TableCell>Project</TableCell>
                   <TableCell>Task</TableCell>
                   <TableCell>Category</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>End Date</TableCell>
+                 
+                  <TableCell>Due Date</TableCell>
                   <TableCell>Urgency</TableCell>
                   <TableCell>Status</TableCell>
                 </TableRow>
@@ -33,7 +33,7 @@ function FilterByUrgency() {
                     <TableCell>{project.projectName}</TableCell>
                     <TableCell>{project.description}</TableCell>
                     <TableCell>{project.category}</TableCell>
-                    <TableCell>{formatDate(project.startDate)}</TableCell>
+                   
                     <TableCell>{formatDate(project.endDate)}</TableCell>
                     <TableCell>{project.urgency}</TableCell>
                     <TableCell>{project.status}</TableCell>
